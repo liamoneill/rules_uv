@@ -4,7 +4,7 @@ load(":transition_to_target.bzl", "transition_to_target")
 
 _PY_TOOLCHAIN = "@bazel_tools//tools/python:toolchain_type"
 
-def _uv_template(ctx, template, executable):
+def _uv_template(ctx, template, executable, args):
     py_toolchain = ctx.toolchains[_PY_TOOLCHAIN]
 
     ctx.actions.expand_template(
@@ -16,7 +16,7 @@ def _uv_template(ctx, template, executable):
             "{{resolved_python}}": py_toolchain.py3_runtime.interpreter.short_path,
             "{{destination_folder}}": ctx.attr.destination_folder,
             "{{site_packages_extra_files}}": " ".join(["'" + file.short_path + "'" for file in ctx.files.site_packages_extra_files]),
-            "{{args}}": " \\\n    ".join(ctx.attr.uv_args),
+            "{{args}}": " \\\n    ".join(args),
         },
     )
 
@@ -31,10 +31,13 @@ def _runfiles(ctx):
 
 def _venv_impl(ctx):
     executable = ctx.actions.declare_file(ctx.attr.name)
-    if ctx.attr.requirements_overrides:
-        ctx.attr.uv_args.append("--overrides={overrides_file}".format(overrides_file = ctx.file.requirements_overrides.short_path))
 
-    _uv_template(ctx, ctx.file.template, executable)
+    args = []
+    args.extend(ctx.attr.uv_args)
+    if ctx.attr.requirements_overrides:
+        args.append("--overrides={overrides_file}".format(overrides_file = ctx.file.requirements_overrides.short_path))
+
+    _uv_template(ctx, ctx.file.template, executable, args)
     return DefaultInfo(
         executable = executable,
         runfiles = _runfiles(ctx),
