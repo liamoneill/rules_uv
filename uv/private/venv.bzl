@@ -31,6 +31,9 @@ def _runfiles(ctx):
 
 def _venv_impl(ctx):
     executable = ctx.actions.declare_file(ctx.attr.name)
+    if ctx.attr.requirements_overrides:
+        ctx.attr.uv_args.append("--overrides={overrides_file}".format(overrides_file = ctx.file.requirements_overrides.short_path))
+
     _uv_template(ctx, ctx.file.template, executable)
     return DefaultInfo(
         executable = executable,
@@ -42,6 +45,7 @@ _venv = rule(
         "destination_folder": attr.string(default = "venv"),
         "site_packages_extra_files": attr.label_list(default = [], doc = "Files to add to the site-packages folder inside the virtual environment. Useful for adding `sitecustomize.py` or `.pth` files", allow_files = True),
         "requirements_txt": attr.label(mandatory = True, allow_single_file = True),
+        "requirements_overrides": attr.label(mandatory = False, allow_single_file = True),
         "_uv": attr.label(default = "@multitool//tools/uv", executable = True, cfg = transition_to_target),
         "template": attr.label(allow_single_file = True),
         "uv_args": attr.string_list(default = []),
