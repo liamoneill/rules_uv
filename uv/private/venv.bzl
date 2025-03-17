@@ -55,23 +55,25 @@ _venv = rule(
     executable = True,
 )
 
-def create_venv(name, requirements_txt = None, target_compatible_with = None, destination_folder = None, site_packages_extra_files = [], uv_args = []):
+def create_venv(name, requirements_txt = None, requirements_overrides = None, target_compatible_with = None, destination_folder = None, site_packages_extra_files = [], uv_args = []):
     _venv(
         name = name,
         destination_folder = destination_folder,
         site_packages_extra_files = site_packages_extra_files,
         requirements_txt = requirements_txt or "//:requirements.txt",
+        requirements_overrides = requirements_overrides,
         target_compatible_with = target_compatible_with,
         uv_args = uv_args,
         template = "@rules_uv//uv/private:create_venv.sh",
     )
 
-def sync_venv(name, requirements_txt = None, target_compatible_with = None, destination_folder = None, site_packages_extra_files = [], uv_args = []):
+def sync_venv(name, requirements_txt = None, requirements_overrides = None, target_compatible_with = None, destination_folder = None, site_packages_extra_files = [], uv_args = []):
     _venv(
         name = name,
         destination_folder = destination_folder,
         site_packages_extra_files = site_packages_extra_files,
         requirements_txt = requirements_txt or "//:requirements.txt",
+        requirements_overrides = requirements_overrides,
         target_compatible_with = target_compatible_with,
         uv_args = uv_args,
         template = "@rules_uv//uv/private:sync_venv.sh",
