@@ -22,8 +22,9 @@ def _uv_template(ctx, template, executable, args):
 
 def _runfiles(ctx):
     py_toolchain = ctx.toolchains[_PY_TOOLCHAIN]
+    overrides_file = [ctx.file.requirements_overrides] if ctx.attr.requirements_overrides else []
     runfiles = ctx.runfiles(
-        files = [ctx.file.requirements_txt] + ctx.files.site_packages_extra_files,
+        files = [ctx.file.requirements_txt] + overrides_file + ctx.files.site_packages_extra_files,
         transitive_files = py_toolchain.py3_runtime.files,
     )
     runfiles = runfiles.merge(ctx.attr._uv[0].default_runfiles)
